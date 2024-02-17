@@ -144,9 +144,8 @@ namespace HKCR {
 
 		while (!glfwWindowShouldClose(nWindow)) {
 			//fbo.bind();
-			if (m_gameWindow->getEvents()->WindowResizing) {
+			if (m_gameWindow->getEvents()->WindowResizing)
 				onWindowResizing(m_gameWindow->getWidth(), m_gameWindow->getHeight());
-			}
 
 			glEnable(GL_DEPTH_TEST);
 
@@ -194,10 +193,11 @@ namespace HKCR {
 		// Deleting in the scene destructor
 		//delete m_sceneManager;
 	}
+
 	void HKCR::App::onWindowResizing(const float newWidth, const float newHeight)
 	{
-		const float w = m_gameWindow->getWidth();
-		const float h = m_gameWindow->getHeight();
+		/*const float w = m_gameWindow->getWidth();
+		const float h = m_gameWindow->getHeight();*/
 
 		// For editor window
 		//const float aspect = w / h;
@@ -213,18 +213,18 @@ namespace HKCR {
 		// TODO: Add the ability to change the aspect ratio of the window 
 		const float mainAspect = 16.0f / 9.0f;
 
-		float correctHeight = w / mainAspect;
-		float correctWidth = w;
+		float correctHeight = newWidth / mainAspect;
+		float correctWidth = newWidth;
 
 		uint16_t viewportX = 0;
 		uint16_t viewportY = 0;
 
-		if (correctHeight >= h) {
-			correctWidth = correctWidth * (h / correctHeight);
-			viewportX = w / 2.0f - correctWidth / 2.0f;
-			correctHeight = h;
+		if (correctHeight >= newHeight) {
+			correctWidth = correctWidth * (newHeight / correctHeight);
+			viewportX = newWidth / 2.0f - correctWidth / 2.0f;
+			correctHeight = newHeight;
 		}
-		else viewportY = h / 2.0f - correctHeight / 2.0f;
+		else viewportY = newHeight / 2.0f - correctHeight / 2.0f;
 
 		glViewport(viewportX, viewportY, correctWidth, correctHeight);
 

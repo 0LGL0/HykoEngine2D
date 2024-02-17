@@ -94,9 +94,7 @@ namespace HKCR {
 	{
 		if (camera.hasAllComponents<HK::CameraComponent>()) {
 			m_currentCamera = std::make_shared<HK::Entity>(camera);
-
-			const float ratio = (float)INITIAL_GAME_WINDOW_WIDTH / INITIAL_GAME_WINDOW_HEIGHT;
-			m_currentCamera->getComponent<HK::CameraComponent>().updateProjectionMat(1920.0f, 1080.0f);
+			m_currentCamera->getComponent<HK::CameraComponent>().updateProjectionMat(INITIAL_GAME_WINDOW_WIDTH, INITIAL_GAME_WINDOW_HEIGHT);
 		}
 		else
 			HK_LOG_INFO("Camera (pointer: {}) does not contain a CameraComponent");

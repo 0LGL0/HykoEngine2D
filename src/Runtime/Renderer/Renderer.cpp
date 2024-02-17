@@ -177,10 +177,10 @@ namespace HKCR {
 		}
 
 		m_Shader.bind();
-
-		const auto p = m_currentScene->getCurrentCamera()->getComponent<HK::CameraComponent>().getProjectionMatrix();
-		const auto v = m_currentScene->getCurrentCamera()->getComponent<HK::CameraComponent>().getViewMatrix();
-		m_Shader.setUniform("VP", v * p);
+		{
+			const auto currCameraComponent = m_currentScene->getCurrentCamera()->getComponent<HK::CameraComponent>();
+			m_Shader.setUniform("VP", currCameraComponent.getProjectionMatrix() * currCameraComponent.getViewMatrix());
+		}
 
 		m_vao.bind();
 
