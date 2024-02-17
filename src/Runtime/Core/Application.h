@@ -12,6 +12,8 @@ namespace HKCR {
 		App();
 		~App();
 	private:
+		void onWindowResizing(const float newWidth, const float newHeight);
+
 		HKCR::GameWindow* m_gameWindow;
 
 		SceneManager* m_sceneManager;

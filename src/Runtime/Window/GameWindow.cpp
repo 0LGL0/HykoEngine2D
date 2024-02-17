@@ -107,6 +107,8 @@ namespace HKCR {
 	void GameWindow::setTitle(const std::string& title) {
 		HK_LOG_INFO("GLFW Game window title updated: {}", title);
 		m_props.Title = title;
+
+		glfwSetWindowTitle(m_props.Window, title.c_str());
 	}
 
 	void GameWindow::setMaxFPS(const uint16_t& value) {

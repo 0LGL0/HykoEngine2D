@@ -28,16 +28,19 @@ namespace HK {
 			m_viewMat = glm::mat4(HK::MatTransform::translate(newPos));
 		}
 
-		void updateProjectionMat(const uint32_t newScreenWidth, const uint32_t newScreenHeight) {
-			const float ratio = newScreenWidth / newScreenHeight;
+		void updateProjectionMat(const float newScreenWidth, const float newScreenHeight) {
+			screenWidth = newScreenWidth;
+			screenHeight = newScreenHeight;
 
-			m_projectionMat = glm::ortho(-(newScreenWidth / 2.0f * ratio), newScreenWidth / 2.0f * ratio, -(newScreenHeight / 2.0f), newScreenHeight / 2.0f);
+			m_projectionMat = glm::ortho(-newScreenWidth / 2.0f, newScreenWidth / 2.0f, -newScreenHeight / 2.0f, newScreenHeight / 2.0f);
 		}
 
 		glm::mat4 m_projectionMat = glm::mat4(1.0f);
 
 		// TODO: replace it with just the camera position
 		glm::mat4 m_viewMat = glm::mat4(1.0f);
+
+		const CameraComponent* th = this;
 
 		friend HKCR::Scene;
 		friend HKCR::App;
