@@ -20,11 +20,12 @@ namespace HKCR {
 
 		const bool setUniform(const std::string& uName, const glm::mat4& matrix);
 		const bool setUniform(const std::string& uName, const unsigned int uInt);
-		const bool Shader::setUniform(const std::string& uName, const int _int);
+		const bool setUniform(const std::string& uName, const int _int);
 		const bool setUniform(const std::string& uName, const float _float);
 		const bool setUniform(const std::string& uName, const std::vector<unsigned int>& uIntV);
 		const bool setUniform(const std::string& uName, const std::vector<float>& floatV);
 		const bool setUniform(const std::string& uName, const glm::vec3& vec3);
+		const bool setUniform(const std::string& uName, const uint64_t _uInt64);
 
 		void bind() const;
 		void unbind() const;

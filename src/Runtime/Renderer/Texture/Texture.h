@@ -7,6 +7,7 @@
 
 namespace HKCR {
 	class Renderer;
+	class App;
 }
 
 namespace HK {
@@ -29,16 +30,18 @@ namespace HK {
 				return false;
 
 			glMakeTextureHandleNonResidentARB(m_handle);
-
 			glDeleteTextures(1, &textureID);
+
 			textureID = static_cast<GLuint>(-1);
 			width = 0;
 			height = 0;
 			channels = 0;
+			m_handle = 0;
 		}
 	private:
 		uint64_t m_handle = 0;
 
 		friend HKCR::Renderer;
+		friend HKCR::App;
 	};
 }

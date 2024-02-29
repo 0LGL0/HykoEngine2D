@@ -73,7 +73,8 @@ namespace HKCR {
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &textureID);
 		glTextureStorage2D(textureID, 1, imageFormat, width, height);
-		glTextureSubImage2D(textureID, 0, 0, 0, width, height, dataFormat, GL_UNSIGNED_BYTE, textureData);
+		if(textureData) 
+			glTextureSubImage2D(textureID, 0, 0, 0, width, height, dataFormat, GL_UNSIGNED_BYTE, textureData);
 
 		glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, props.textureMinFilter);
 		glTextureParameteri(textureID, GL_TEXTURE_MAG_FILTER, props.textureMagFilter);

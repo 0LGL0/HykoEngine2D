@@ -1,11 +1,9 @@
 #include "Application.h"
-#include "Application.h"
 
 #include "Hyko.h"
 #include "Tools/Log/Logger.h"
 #include "Tools/Sys.h"
 #include "Platform/GL.h"
-#include "Platform/ShaderTools/Shader.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/Material/Material.h"
 #include "Renderer/Texture/TextureManager.h"
@@ -15,6 +13,8 @@
 #include "Scene/Entity/Entity.h"
 #include "Scene/Scene.h"
 #include "Events/Input/InputModule.h"
+#include "Platform/Buffers/GL/SSBManager.h"
+#include "Platform/Buffers/GL/FBO/FBO.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -40,34 +40,37 @@ namespace HKCR {
 
 		m_gameWindow->init(HKCR::WindowProps(INITIAL_GAME_WINDOW_WIDTH, INITIAL_GAME_WINDOW_HEIGHT));
 
-		/*static constexpr float FBOVerticesPos[4 * 6]{
-			 1.0f, -1.0f,		1.0f, 0.0f,
+		HKCR::Scene scene;
+
+		m_sceneManager->setCurrentScene(&scene);
+
+		static constexpr float FBOVerticesPos[4 * 6]{
 			-1.0f, -1.0f,		0.0f, 0.0f,
+			 1.0f, -1.0f,		1.0f, 0.0f,
 			-1.0f,  1.0f,		0.0f, 1.0f,
 
-			 1.0f,  1.0f,		1.0f, 1.0f,
 			 1.0f, -1.0f,		1.0f, 0.0f,
+			 1.0f,  1.0f,		1.0f, 1.0f,
 			-1.0f,  1.0f,		0.0f, 1.0f,
 		};
 
-		FBO fbo{ INITIAL_GAME_WINDOW_WIDTH, INITIAL_GAME_WINDOW_HEIGHT };
-		fbo.bind();
-		fbo.createRGBTexture(4, RGBA8, RGBA);
-		fbo.createRGBTexture(1, DEPTH_COMPONENT24, DEPTH_COMPONENT);
-		fbo.unbind();
+		FBO* fbo = m_sceneManager->getCurrentScene()->getSSBManager().getMainFBO();
+		fbo->bind();
+		const auto fboRGBTexture = fbo->createRGBTexture(4, RGBA8, RGBA);
+		fbo->createDepthTexture(DEPTH_COMPONENT24, DEPTH_ATTACHMENT);
+		fbo->unbind();
 
-		Shader fboShader;
-		fboShader.loadVertexShader("res\\Shaders\\FBOPostProcess.vert");
-		fboShader.loadFragmentShader("res\\Shaders\\FBOPostProcess.frag");
+		m_fboShader.loadVertexShader("res\\Shaders\\FBOPostProcess.vert");
+		m_fboShader.loadFragmentShader("res\\Shaders\\FBOPostProcess.frag");
 
-		fboShader.compileFragmentShader();
-		fboShader.compileVertexShader();
-		fboShader.compileShaderProgram();
+		m_fboShader.compileFragmentShader();
+		m_fboShader.compileVertexShader();
+		m_fboShader.compileShaderProgram();
 
 		VAO<float> fboVAO;
 		VBO fboVBO;
 
-		fboShader.bind();
+		m_fboShader.bind();
 		fboVAO.bind();
 
 		fboVBO.fillBuffer(sizeof(FBOVerticesPos), &FBOVerticesPos);
@@ -76,13 +79,9 @@ namespace HKCR {
 		fboVAO.addNewAttrib(0, 2, 0);
 		fboVAO.addNewAttrib(1, 2, 2);
 
-		fboShader.setUniform("FBO_RGB", 0);
+		m_fboShader.setUniform("FBO_RGB", fboRGBTexture.m_handle);
 		fboVAO.unbind();
-		fboShader.unbind();*/
-
-		HKCR::Scene scene;
-
-		m_sceneManager->setCurrentScene(&scene);
+		m_fboShader.unbind();
 
 		auto nWindow = m_gameWindow->getNativeWindow(); // native glfw window
 
@@ -137,23 +136,31 @@ namespace HKCR {
 
 		m_gameWindow->VSync(false);
 
-		glDisable(GL_STENCIL_TEST);
-
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
+
+		glDisable(GL_STENCIL_TEST);
+
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 		while (!glfwWindowShouldClose(nWindow)) {
-			//fbo.bind();
+			glViewport(0, 0, m_cWW, m_cWH);
 			if (m_gameWindow->getEvents()->WindowResizing)
 				onWindowResizing(m_gameWindow->getWidth(), m_gameWindow->getHeight());
+
+			fbo->bind();
 
 			glEnable(GL_DEPTH_TEST);
 
 			glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
 
-			glEnable(GL_SCISSOR_TEST);
+			//glEnable(GL_SCISSOR_TEST);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glDisable(GL_SCISSOR_TEST);
+			//glDisable(GL_SCISSOR_TEST);
 
 			if (HKCR::Input::isKey(HKCR::Key::SPACE, HKCR::Action::PRESS, HKCR::KeyMod::NONE))
 				entity3.getComponent<HK::LayerComponent>().layerIndex = 0;
@@ -163,15 +170,16 @@ namespace HKCR {
 			// TODO: Maybe replace with something
 			m_gameWindow->m_props.engineEvents->reset();
 
-			//fbo.unbind();
+			glViewport(m_cX, m_cY, m_cWW, m_cWH);
 
-			/*fboShader.bind();
+			fbo->unbind();
+
+			m_fboShader.bind();
 			fboVAO.bind();
 			glDisable(GL_DEPTH_TEST);
-			glBindTexture(GL_TEXTURE_2D, fbo.getRGB());
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			fboVAO.unbind();
-			fboShader.unbind();*/
+			m_fboShader.unbind();
 
 			glfwSwapBuffers(nWindow);
 			glfwPollEvents();
@@ -194,6 +202,7 @@ namespace HKCR {
 		//delete m_sceneManager;
 	}
 
+	// Eeeee... it's veryyy scary)
 	void HKCR::App::onWindowResizing(const float newWidth, const float newHeight)
 	{
 		/*const float w = m_gameWindow->getWidth();
@@ -210,30 +219,48 @@ namespace HKCR {
 		//camComponent.updateProjectionMat(w * aspect, h * aspect);
 
 
-		// TODO: Add the ability to change the aspect ratio of the window 
-		const float mainAspect = 16.0f / 9.0f;
+		// TODO: Add the ability to change the aspect ratio of the window	
+		const auto allFBOs = m_sceneManager->getCurrentScene()->getSSBManager().getAllFBOs();
+		const auto winMonitor = m_gameWindow->getWindowMonitorInfo().rcMonitor;
+		const float mainAspect = (winMonitor.right - winMonitor.left) / (float)(winMonitor.bottom - winMonitor.top);
+		m_cWH = newWidth / mainAspect;
+		m_cWW = newWidth;
 
-		float correctHeight = newWidth / mainAspect;
-		float correctWidth = newWidth;
+		m_cX = 0;
+		m_cY = 0;
 
-		uint16_t viewportX = 0;
-		uint16_t viewportY = 0;
-
-		if (correctHeight >= newHeight) {
-			correctWidth = correctWidth * (newHeight / correctHeight);
-			viewportX = newWidth / 2.0f - correctWidth / 2.0f;
-			correctHeight = newHeight;
+		/*if (m_cWH >= newHeight) {
+			m_cWW = m_cWH * mainAspect;
+			m_cX = newWidth / 2.0f - m_cWW / 2.0f;
+			m_cWH = newHeight;
 		}
-		else viewportY = newHeight / 2.0f - correctHeight / 2.0f;
+		else m_cY = newHeight / 2.0f - m_cWH / 2.0f;*/
 
-		glViewport(viewportX, viewportY, correctWidth, correctHeight);
+		if (m_cWH > newHeight)
+			m_cWH = newHeight;
+
+		m_cWW = m_cWH * mainAspect;
+
+		m_cX = newWidth / 2 - m_cWW / 2;
+		m_cY = newHeight / 2 - m_cWH / 2;
+
+		//glViewport(m_cX, m_cY, m_cWW, m_cWH);
+
+		for (const auto fbo : allFBOs)
+			fbo->updateSize(m_cWW, m_cWH, DEPTH_COMPONENT24);
+
+		/*m_fboShader.bind();
+		m_fboShader.setUniform("FBO_RGB", fbo.getRGBTexture().m_handle);
+		m_fboShader.unbind();*/
 
 		//auto& camComponent = m_sceneManager->getCurrentScene()->getCurrentCamera()->getComponent<HK::CameraComponent>();
-		//camComponent.updateProjectionMat(correctWidth, correctHeight);
+		//camComponent.updateProjectionMat(m_cWW, m_cWH);
 
-		glScissor(viewportX, viewportY, correctWidth, correctHeight);
+		HK_LOG_INFO("Window was resized (new size: {}x{})", newWidth, newHeight);
+
+		/*glScissor(m_cX, m_cY, m_cWW, m_cWH);
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);*/
 	}
 }

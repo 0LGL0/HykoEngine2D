@@ -1,19 +1,21 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
+#include <cmath>
 #include <memory>
 #include <vector>
 #include <array>
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
-#include <cmath>
 #include <typeinfo>
 #include <filesystem>
 #include <functional>
 #include <forward_list>
+#include <fstream>
 #include <set>
+#include <sstream>
+#include <string>
 
 #include <Windows.h>
 

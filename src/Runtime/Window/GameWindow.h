@@ -10,6 +10,8 @@
 #include <GLFW/glfw3.h>
 
 namespace HKCR {
+	class GameWindow;
+
 	struct WindowProps {
 		uint32_t Width;
 		uint32_t Height;
@@ -35,6 +37,11 @@ namespace HKCR {
 
 			return *this;
 		}
+	private:
+		HMONITOR winMonitor; // the monitor used to display the window
+		MONITORINFO winMonitorInfo;
+
+		friend GameWindow;
 	};
 
 	class GameWindow {
@@ -55,6 +62,7 @@ namespace HKCR {
 		WindowProps& getProps();
 		static GameWindow* getInstance();
 		const std::shared_ptr<Events> getEvents() const;
+		const MONITORINFO& getWindowMonitorInfo() const;
 
 		// setters
 		void setWidth(const uint32_t& width);

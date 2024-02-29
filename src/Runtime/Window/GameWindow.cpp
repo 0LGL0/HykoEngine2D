@@ -1,7 +1,11 @@
 #include "GameWindow.h"
+#include "GameWindow.h"
 
 #include "Tools/Log/Logger.h"
 #include "Events/Input/InputModule.h"
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
 
 #define LOGGER_NAME "GameWindowLogger"
 
@@ -64,6 +68,11 @@ namespace HKCR {
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 			HK_LOG_ERROR("OpenGL functions have not been loaded");
 		}
+
+		// Get monitor from window
+		m_props.winMonitor = MonitorFromWindow(glfwGetWin32Window(m_props.Window), MONITOR_DEFAULTTONEAREST);
+		m_props.winMonitorInfo.cbSize = sizeof(MONITORINFO);
+		GetMonitorInfo(m_props.winMonitor, &m_props.winMonitorInfo);
 	}
 
 	GameWindow* GameWindow::getInstance()
@@ -76,6 +85,11 @@ namespace HKCR {
 	const std::shared_ptr<Events> GameWindow::getEvents() const
 	{
 		return m_props.engineEvents;
+	}
+
+	const MONITORINFO& GameWindow::getWindowMonitorInfo() const
+	{
+		return m_props.winMonitorInfo;
 	}
 
 	GLFWwindow* GameWindow::getNativeWindow() const {

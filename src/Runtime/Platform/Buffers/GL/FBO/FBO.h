@@ -5,6 +5,7 @@
 #include <spdlog/logger.h>
 
 #include "Renderer/Texture/Texture.h"
+#include "Platform/Buffers/GL/RBO/RBO.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -12,11 +13,12 @@
 namespace HKCR {
 	class FBO {
 	public:
-		FBO() = default;
-		FBO(const uint16_t width, const uint16_t height);
+		FBO() = delete;
+		FBO(const uint32_t width, const uint32_t height);
+		~FBO();
 
 		HK::Texture createRGBTexture(const uint8_t numOfChannels, const unsigned int imageFormat, const unsigned int dataFormat);
-		HK::Texture createDepthTexture(const uint8_t numOfChannels, const unsigned int imageFormat, const unsigned int dataFormat);
+		void createDepthTexture(const unsigned int format, const unsigned int attachmentFormat);
 
 		[[nodiscard]]
 		const uint16_t getWidth() const;
@@ -26,16 +28,24 @@ namespace HKCR {
 		const GLuint getRGB() const;
 		[[nodiscard]]
 		const GLuint getFBO() const;
+		[[nodiscard]]
+		const HK::Texture getRGBTexture() const;
 
-		void setWidth(const uint16_t& width);
-		void setHeight(const uint16_t& height);
+		void setWidth(const uint32_t& width);
+		void setHeight(const uint32_t& height);
 
-		void updateSize(const uint16_t& newWidth, const uint16_t newHeight);
+		void attachDepthTexture(const unsigned int attachmentFormat, const GLuint depthID);
+		void attachRGBTexture(const GLuint rgbTextureID);
+
+		void updateSize(const uint32_t& newWidth, const uint32_t newHeight, const unsigned int depthFormat);
 
 		void bind() const;
 		void unbind() const;
 	private:
-		void initFBO(const uint16_t width, const uint16_t height);
+		void initFBO(const uint32_t width, const uint32_t height);
+		void deleteFBO();
+
+		RBO *m_depthBuff;
 
 		GLuint m_fbo;
 		GLuint m_RGB;
@@ -44,15 +54,11 @@ namespace HKCR {
 		uint16_t m_width;
 		uint16_t m_height;
 
-		HK::Texture m_rgbTexture;
-		HK::Texture m_depthTexture;
+		HK::Texture m_rgbTexture = HK::Texture{};
 
 		uint8_t m_rgbNumOfChannels;
-		uint8_t m_depthNumOfChannels;
 
 		unsigned int m_rgbTImageF;
 		unsigned int m_rgbTDataF;
-		unsigned int m_depthTImageF;
-		unsigned int m_depthTDataF;
 	};
 }

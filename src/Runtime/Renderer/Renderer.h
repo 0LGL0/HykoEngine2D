@@ -8,6 +8,7 @@
 #include "Platform/Buffers/GL/VBO/VBO.h"
 #include "Platform/Buffers/GL/EBO/EBO.h"
 #include "Platform/Buffers/GL/SSBO/SSBO.h"
+#include "Platform/Buffers/GL/FBO/FBO.h"
 
 #include "Scene/Entity/Components/LayerComponent.h"
 #include "Scene/Scene.h"

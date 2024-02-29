@@ -1,0 +1,27 @@
+{
+  "name": "HykoEngine",
+  "version-string": "1.0",
+  "description": "",
+  "dependencies": [
+    {
+      "name": "glad",
+      "features": [ "gl46", "extensions" ]
+    },
+    {
+      "name": "glfw3"
+    },
+    {
+      "name": "glm"
+    },
+    {
+      "name": "stb"
+    },
+    {
+      "name": "spdlog",
+      "features": [ "header-only" ]
+    },
+    {
+      "name": "entt"
+    }
+  ]
+}

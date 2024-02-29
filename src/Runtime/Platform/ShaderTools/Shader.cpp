@@ -7,9 +7,6 @@
 
 #include <glad/glad.h>
 
-#include <fstream>
-#include <sstream>
-
 #define LOGGER_NAME "ShaderLogger"
 
 namespace HKCR {
@@ -51,6 +48,38 @@ namespace HKCR {
 		return m_shaderProgram;
 	}
 
+	void Shader::compileShader(unsigned int* shaderIDVar, const int shaderType, const char* shaderSrc) {
+		*shaderIDVar = glCreateShader(shaderType);
+		glShaderSource(*shaderIDVar, 1, &shaderSrc, NULL);
+		glCompileShader(*shaderIDVar);
+
+		isCompiledShader(*shaderIDVar, shaderType);
+	}
+
+	void Shader::loadShader(std::string* shaderSrcVar, const std::string& pathToShader) {
+		std::ifstream shaderFile{ pathToShader };
+		HK_ASSERT(shaderFile.is_open(), "Shader file ({}) was not open", pathToShader.c_str());
+
+		std::stringstream shaderStream;
+		shaderStream << shaderFile.rdbuf();
+
+		shaderFile.close();
+
+		*shaderSrcVar = shaderStream.str();
+	}
+
+	void Shader::isCompiledShader(const unsigned int shaderID, const int shaderType) {
+		GLint success;
+		char infolog[512];
+
+		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
+		if (!success) {
+			glGetShaderInfoLog(shaderID, 512, NULL, infolog);
+			HK_LOG_ERROR("Shader({}) not compilled {}", shaderType, infolog);
+			abort();
+		}
+	}
+
 	void Shader::bind() const {
 		glUseProgram(m_shaderProgram);
 	}
@@ -58,6 +87,9 @@ namespace HKCR {
 	void Shader::unbind() const {
 		glUseProgram(0);
 	}
+
+
+	// Matrix =========================================================
 
 	const bool Shader::setUniform(const std::string& uName, const glm::mat4& matrix) {
 		uint16_t loc;
@@ -68,6 +100,8 @@ namespace HKCR {
 		return false;
 	}
 
+	// unsigned int ===================================================
+
 	const bool Shader::setUniform(const std::string& uName, const unsigned int uInt) {
 		uint16_t loc;
 		if (getUniformLoc(uName, &loc)) {
@@ -77,19 +111,10 @@ namespace HKCR {
 		return false;
 	}
 
-	const bool Shader::setUniform(const std::string& uName, const int _int) {
+	const bool Shader::setUniform(const std::string& uName, const uint64_t _uInt64) {
 		uint16_t loc;
 		if (getUniformLoc(uName, &loc)) {
-			glUniform1i(loc, _int);
-			return true;
-		}
-		return false;
-	}
-
-	const bool Shader::setUniform(const std::string& uName, const float _float) {
-		uint16_t loc;
-		if (getUniformLoc(uName, &loc)) {
-			glUniform1f(loc, _float);
+			glUniform1ui64ARB(loc, _uInt64);
 			return true;
 		}
 		return false;
@@ -104,6 +129,28 @@ namespace HKCR {
 		return false;
 	}
 
+	// int ==============================================================
+
+	const bool Shader::setUniform(const std::string& uName, const int _int) {
+		uint16_t loc;
+		if (getUniformLoc(uName, &loc)) {
+			glUniform1i(loc, _int);
+			return true;
+		}
+		return false;
+	}
+
+	// float ============================================================
+
+	const bool Shader::setUniform(const std::string& uName, const float _float) {
+		uint16_t loc;
+		if (getUniformLoc(uName, &loc)) {
+			glUniform1f(loc, _float);
+			return true;
+		}
+		return false;
+	}
+
 	const bool Shader::setUniform(const std::string& uName, const std::vector<float>& floatV) {
 		uint16_t loc;
 		if (getUniformLoc(uName, &loc)) {
@@ -112,6 +159,8 @@ namespace HKCR {
 		}
 		return false;
 	}
+
+	// glsl vector =======================================================
 
 	const bool Shader::setUniform(const std::string& uName, const glm::vec3& vec3) {
 		uint16_t loc;
@@ -136,37 +185,5 @@ namespace HKCR {
 
 		m_uniforms.insert({ uName, *loc });
 		return true;
-	}
-
-	void Shader::compileShader(unsigned int* shaderIDVar, const int shaderType, const char* shaderSrc) {
-		*shaderIDVar = glCreateShader(shaderType);
-		glShaderSource(*shaderIDVar, 1, &shaderSrc, NULL);
-		glCompileShader(*shaderIDVar);
-
-		isCompiledShader(*shaderIDVar, shaderType);
-	}
-
-	void Shader::loadShader(std::string* shaderSrcVar, const std::string& pathToShader) {
-		std::ifstream shaderFile{ pathToShader };
-		HK_ASSERT(shaderFile.is_open(), "Shader file ({0}) was not open", pathToShader.c_str());
-
-		std::stringstream shaderStream;
-		shaderStream << shaderFile.rdbuf();
-
-		shaderFile.close();
-
-		*shaderSrcVar = shaderStream.str();
-	}
-
-	void Shader::isCompiledShader(const unsigned int shaderID, const int shaderType) {
-		GLint success;
-		char infolog[512];
-
-		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
-		if (!success) {
-			glGetShaderInfoLog(shaderID, 512, NULL, infolog);
-			HK_LOG_ERROR("Shader(%x) not compilled %s", shaderType, infolog);
-			abort();
-		}
 	}
 }

@@ -24,8 +24,8 @@ namespace HK {
 			return m_viewMat;
 		}
 	private:
-		void updateViewMat(const glm::vec2 newPos) {
-			m_viewMat = glm::mat4(HK::MatTransform::translate(newPos));
+		void updateViewMat(const glm::vec3 newPos) {
+			m_viewMat = glm::mat4(glm::translate(newPos));
 		}
 
 		void updateProjectionMat(const float newScreenWidth, const float newScreenHeight) {

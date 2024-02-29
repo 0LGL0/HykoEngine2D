@@ -11,7 +11,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(HykoEngine STATIC
 	Core/Application.cpp							# Application
-	Platform/Buffers/GL/FBO/FBO.cpp					# FBO
 	Window/GameWindow.cpp							# GameWindow
 	Platform/GL.cpp									# GL
 	Events/Input/InputModule.cpp					# InputModule
@@ -19,6 +18,9 @@ add_library(HykoEngine STATIC
 	Platform/Buffers/GL/EBO/EBO.cpp					# EBO
 	Platform/Buffers/GL/VAO/VAO.cpp					# VAO
 	Platform/Buffers/GL/SSBO/SSBO.cpp				# SSBO
+	Platform/Buffers/GL/FBO/FBO.cpp					# FBO
+	Platform/Buffers/GL/RBO/RBO.cpp					# RBO
+	Platform/Buffers/GL/SSBManager.cpp			# SSBManager
 	Renderer/Texture/TextureManager.cpp				# TextureManager
 	Renderer/Renderer.cpp							# Renderer
 	Scene/Scene.cpp									# Scene
@@ -30,7 +32,6 @@ add_library(HykoEngine STATIC
 
 	Core/Application.h								# Application
 	Scene/Entity/Entity.h							# Entity
-	Platform/Buffers/GL/FBO/FBO.h					# FBO
 	Window/GameWindow.h								# GameWindow
 	Platform/GL.h									# GL
 	Platform/ShaderTools/Shader.h					# Shader
@@ -50,6 +51,9 @@ add_library(HykoEngine STATIC
 	Platform/Buffers/GL/EBO/EBO.h					# EBO
 	Platform/Buffers/GL/VAO/VAO.h					# VAO
 	Platform/Buffers/GL/SSBO/SSBO.h					# SSBO
+	Platform/Buffers/GL/FBO/FBO.h					# FBO
+	Platform/Buffers/GL/RBO/RBO.h					# RBO
+	Platform/Buffers/GL/SSBManager.h			# SSBManager
 	Math/Matrix/MatrixTransform.h					# MatrixTransform
 	Events/Input/InputModule.h						# InputModule
 	Events/Events.h									# EngineEvents
@@ -57,7 +61,7 @@ add_library(HykoEngine STATIC
 	Core/Input.h									# Input codes
 	Tools/Log/Logger.h								# Logger
 	Scene/Entity/Components/LayerComponent.h		# LayerComponent
-)
+ "Platform/Buffers/GL/RBO/RBO.h" "Platform/Buffers/GL/SSBManager.h")
 
 target_link_libraries(HykoEngine
 	PRIVATE

@@ -1,4 +1,7 @@
 #include "Scene.h"
+#include "Scene.h"
+#include "Scene.h"
+#include "Scene.h"
 
 #include "Entity/Components/TransformComponent.h"
 #include "Entity/Components/SpriteComponent.h"
@@ -52,6 +55,16 @@ namespace HKCR {
 	entt::registry& Scene::getReg() {
 		return m_reg;
 	}
+
+	SSBManager& Scene::getSSBManager()
+	{
+		return m_ssbManager;
+	}
+
+	/*const std::vector<FBO>& Scene::getAllFBOs() const
+	{
+		return m_fbos;
+	}*/
 
 	void Scene::setReg(entt::registry& reg) {
 		auto regData = reg.data();
@@ -107,4 +120,9 @@ namespace HKCR {
 		else
 			HK_LOG_INFO("The current camera was empty");
 	}
+
+	/*void HKCR::Scene::addNewFramebuffer(const FBO& newFBO)
+	{
+		m_fbos.push_back(newFBO);
+	}*/
 }
