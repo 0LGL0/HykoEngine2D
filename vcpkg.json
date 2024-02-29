@@ -1,7 +1,5 @@
 {
-  "name": "HykoEngine",
-  "version-string": "1.0",
-  "description": "",
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "dependencies": [
     {
       "name": "glad",
